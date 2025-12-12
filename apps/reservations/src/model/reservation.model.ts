@@ -16,6 +16,5 @@ export class ReservationDocument extends AbstractDocument {
   @Prop({ required: true })
   invoiceId: string;
 }
-
 export const ReservationSchema =
   SchemaFactory.createForClass(ReservationDocument);
