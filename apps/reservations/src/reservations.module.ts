@@ -3,17 +3,19 @@ import { ReservationsService } from './reservations.service';
 import { ReservationsController } from './reservations.controller';
 import { DatabaseModule } from '@app/common';
 import { ReservationsRepository } from './reservations.repository';
+
 import {
   ReservationDocument,
   ReservationSchema,
 } from './model/reservation.model';
-
+import { LoggerModule } from '@app/common';
 @Module({
   imports: [
     DatabaseModule,
     DatabaseModule.forFeature([
       { name: ReservationDocument.name, schema: ReservationSchema },
     ]),
+    LoggerModule,
   ],
   controllers: [ReservationsController],
   providers: [ReservationsService, ReservationsRepository],
