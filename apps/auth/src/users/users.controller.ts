@@ -13,7 +13,7 @@ export class UsersController {
     const password = await bcrypt.hash(createUserDto.password, 10);
     return this.usersService.createUser({ ...createUserDto, password });
   }
-  
+
   @Get(':id')
   getUser(@Param('id') id: string) {
     return this.usersService.getUser(id);
