@@ -8,6 +8,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { APP_GUARD } from '@nestjs/core';
+import { TokenRevocationService } from './services/token-revocation.service';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { APP_GUARD } from '@nestjs/core';
     AuthService,
     LocalStrategy,
     JwtStrategy,
+    TokenRevocationService,
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
