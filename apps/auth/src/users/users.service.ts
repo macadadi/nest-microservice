@@ -11,6 +11,9 @@ export class UsersService {
   async getUser(id: string) {
     return this.userRepository.findOne({ _id: id });
   }
+  async getUserByEmail(email: string) {
+    return this.userRepository.findOne({ email });
+  }
   async getUsers() {
     return this.userRepository.findWithoutPassword({});
   }
