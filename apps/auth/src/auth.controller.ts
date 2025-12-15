@@ -8,6 +8,7 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
+import { ApiBody, ApiTags } from '@nestjs/swagger';
 import {
   AuthService,
   LoginResponse,
@@ -19,8 +20,10 @@ import { UsersService } from './users/users.service';
 import { Public } from './decorators/public.decorator';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { LogoutDto } from './dto/logout.dto';
+import { LoginDto } from './dto/login.dto';
 
-@Controller()
+@ApiTags('Auth')
+@Controller('auth')
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
@@ -29,7 +32,8 @@ export class AuthController {
 
   @Public()
   @UseGuards(LocalAuthGuard)
-  @Post('auth/login')
+  @Post('login')
+  @ApiBody({ type: LoginDto })
   async login(
     @Request() req: Request & { user: Pick<UserDocument, 'email' | '_id'> },
   ): Promise<LoginResponse> {
@@ -37,7 +41,7 @@ export class AuthController {
   }
 
   @Public()
-  @Post('auth/refresh')
+  @Post('refresh')
   async refresh(
     @Body() refreshTokenDto: RefreshTokenDto,
   ): Promise<RefreshTokenResponse> {
@@ -45,7 +49,7 @@ export class AuthController {
   }
 
   @Public()
-  @Post('auth/logout')
+  @Post('logout')
   @HttpCode(HttpStatus.OK)
   async logout(@Body() logoutDto: LogoutDto): Promise<{ message: string }> {
     await this.authService.logout(
