@@ -7,10 +7,7 @@ import { UserEntity } from './model/user.entity';
 import { LoggerModule } from '@app/common';
 
 @Module({
-  imports: [
-    DatabaseModule.forFeature([UserEntity]),
-    LoggerModule,
-  ],
+  imports: [DatabaseModule.forFeature([UserEntity]), LoggerModule],
   providers: [UsersService, UserRepository],
   controllers: [UsersController],
   exports: [UsersService],
