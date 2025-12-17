@@ -15,7 +15,7 @@ import {
   RefreshTokenResponse,
 } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
-import { UserDocument } from './users/model/user.model';
+import { UserEntity } from './users/model/user.entity';
 import { UsersService } from './users/users.service';
 import { Public } from './decorators/public.decorator';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
@@ -35,7 +35,7 @@ export class AuthController {
   @Post('login')
   @ApiBody({ type: LoginDto })
   async login(
-    @Request() req: Request & { user: Pick<UserDocument, 'email' | '_id'> },
+    @Request() req: Request & { user: Pick<UserEntity, 'email' | 'id'> },
   ): Promise<LoginResponse> {
     return this.authService.login(req.user);
   }
@@ -59,7 +59,7 @@ export class AuthController {
     return { message: 'Successfully logged out' };
   }
 
-  @Get('auth/users')
+  @Get('users')
   async users() {
     return this.usersService.getUsers();
   }

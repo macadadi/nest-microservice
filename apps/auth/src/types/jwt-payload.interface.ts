@@ -6,5 +6,5 @@ export interface JwtPayload {
 }
 
 export interface JwtPayloadWithUser extends JwtPayload {
-  _id: string;
+  id: string;
 }

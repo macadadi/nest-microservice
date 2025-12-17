@@ -1,23 +1,46 @@
 import { AbstractRepository } from '@app/common';
-import { Model, QueryFilter } from 'mongoose';
-import { UserDocument } from './model/user.model';
-import { InjectModel } from '@nestjs/mongoose';
 import { Injectable, Logger } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { UserEntity } from './model/user.entity';
 
+/**
+ * User repository providing data access operations for UserEntity
+ * Extends AbstractRepository for common CRUD operations
+ */
 @Injectable()
-export class UserRepository extends AbstractRepository<UserDocument> {
+export class UserRepository extends AbstractRepository<UserEntity> {
   protected readonly logger = new Logger(UserRepository.name);
-  constructor(@InjectModel(UserDocument.name) userModel: Model<UserDocument>) {
-    super(userModel);
+
+  constructor(
+    @InjectRepository(UserEntity)
+    userRepository: Repository<UserEntity>,
+  ) {
+    super(userRepository);
   }
 
+  /**
+   * Find users without password field
+   * Useful for returning user data without sensitive information
+   */
   async findWithoutPassword(
-    filterQuery: QueryFilter<UserDocument>,
-  ): Promise<UserDocument[]> {
+    filterQuery: Parameters<Repository<UserEntity>['find']>[0],
+  ): Promise<Omit<UserEntity, 'password'>[]> {
     this.logger.log('Finding users without password');
-    return this.model
-      .find(filterQuery)
-      .select('-password')
-      .lean<UserDocument[]>(true);
+    const users = await this.repository.find({
+      ...filterQuery,
+      select: ['id', 'email', 'createdAt', 'updatedAt'],
+    });
+    return users;
+  }
+
+  /**
+   * Find user by email
+   * Includes password for authentication purposes
+   */
+  async findByEmail(email: string): Promise<UserEntity | null> {
+    return await this.findOneOrNull({
+      where: { email },
+    });
   }
 }

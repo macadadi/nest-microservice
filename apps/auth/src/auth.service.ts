@@ -5,9 +5,9 @@ import {
   Logger,
 } from '@nestjs/common';
 import { UsersService } from './users/users.service';
-import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
-import { UserDocument } from './users/model/user.model';
+import { UserEntity } from './users/model/user.entity';
+import { compareUserPassword } from './users/password.helper';
 import { TokenRevocationService } from './services/token-revocation.service';
 import { JwtPayload } from './types/jwt-payload.interface';
 import { AUTH_CONSTANTS } from './constants/auth.constants';
@@ -34,14 +34,17 @@ export class AuthService {
   async validateUser(
     email: string,
     password: string,
-  ): Promise<Omit<UserDocument, 'password'> | null> {
+  ): Promise<Pick<
+    UserEntity,
+    'id' | 'email' | 'createdAt' | 'updatedAt'
+  > | null> {
     try {
       const user = await this.usersService.getUserByEmail(email);
       if (!user) {
         return null;
       }
 
-      const passwordMatches = await bcrypt.compare(password, user.password);
+      const passwordMatches = await compareUserPassword(user, password);
       if (!passwordMatches) {
         return null;
       }
@@ -58,10 +61,8 @@ export class AuthService {
     }
   }
 
-  async login(
-    user: Pick<UserDocument, 'email' | '_id'>,
-  ): Promise<LoginResponse> {
-    const payload = { email: user.email, sub: String(user._id) };
+  async login(user: Pick<UserEntity, 'email' | 'id'>): Promise<LoginResponse> {
+    const payload = { email: user.email, sub: user.id };
 
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(payload, {

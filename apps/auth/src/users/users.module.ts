@@ -1,19 +1,17 @@
 import { Module } from '@nestjs/common';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
-import { UserDocument } from './model/user.model';
 import { DatabaseModule } from '@app/common';
 import { UserRepository } from './user.repository';
-import { UserSchema } from './model/user.model';
+import { UserEntity } from './model/user.entity';
 import { LoggerModule } from '@app/common';
 
 @Module({
   imports: [
-    DatabaseModule.forFeature([
-      { name: UserDocument.name, schema: UserSchema },
-    ]),
+    // Register UserEntity with TypeORM using forFeature()
+    // DatabaseModule (forRoot) is imported in AuthModule
+    DatabaseModule.forFeature([UserEntity]),
     LoggerModule,
-    DatabaseModule,
   ],
   providers: [UsersService, UserRepository],
   controllers: [UsersController],

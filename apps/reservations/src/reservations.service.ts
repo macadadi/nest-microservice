@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreateReservationDto } from './dto/create-reservation.dto';
 import { UpdateReservationDto } from './dto/update-reservation.dto';
 import { ReservationsRepository } from './reservations.repository';
+import { ReservationEntity } from './model/reservation.entity';
 
 @Injectable()
 export class ReservationsService {
@@ -9,30 +10,34 @@ export class ReservationsService {
     private readonly reservationsRepository: ReservationsRepository,
   ) {}
 
-  create(createReservationDto: CreateReservationDto) {
+  create(
+    createReservationDto: CreateReservationDto,
+  ): Promise<ReservationEntity> {
     return this.reservationsRepository.create({
       ...createReservationDto,
       timestamp: Date.now(),
-      userId: '1234',
     });
   }
 
-  findAll() {
+  findAll(): Promise<ReservationEntity[]> {
     return this.reservationsRepository.find({});
   }
 
-  findOne(id: string) {
-    return this.reservationsRepository.findOne({ _id: id });
+  findOne(id: string): Promise<ReservationEntity> {
+    return this.reservationsRepository.findOne({ where: { id } });
   }
 
-  update(id: string, updateReservationDto: UpdateReservationDto) {
+  update(
+    id: string,
+    updateReservationDto: UpdateReservationDto,
+  ): Promise<ReservationEntity> {
     return this.reservationsRepository.findOneAndUpdate(
-      { _id: id },
-      { $set: updateReservationDto },
+      { id },
+      updateReservationDto,
     );
   }
 
-  remove(id: string) {
-    return this.reservationsRepository.findOneAndDelete({ _id: id });
+  remove(id: string): Promise<ReservationEntity> {
+    return this.reservationsRepository.findOneAndDelete({ id });
   }
 }

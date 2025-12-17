@@ -4,17 +4,21 @@ import { Injectable, UnauthorizedException, Logger } from '@nestjs/common';
 import { TokenRevocationService } from '../services/token-revocation.service';
 import { Request } from 'express';
 import { JwtPayload, JwtPayloadWithUser } from '../types/jwt-payload.interface';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   private readonly logger = new Logger(JwtStrategy.name);
   private readonly extractJwt = ExtractJwt.fromAuthHeaderAsBearerToken();
 
-  constructor(private readonly tokenRevocationService: TokenRevocationService) {
+  constructor(
+    private readonly tokenRevocationService: TokenRevocationService,
+    private readonly configService: ConfigService,
+  ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: process.env.JWT_SECRET!,
+      secretOrKey: configService.getOrThrow<string>('JWT_SECRET'),
       passReqToCallback: true,
     });
   }
@@ -33,7 +37,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     }
 
     return {
-      _id: payload.sub,
+      id: payload.sub,
       email: payload.email,
       sub: payload.sub,
       exp: payload.exp,

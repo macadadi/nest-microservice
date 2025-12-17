@@ -9,14 +9,25 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { APP_GUARD } from '@nestjs/core';
 import { TokenRevocationService } from './services/token-revocation.service';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { AUTH_CONSTANTS } from './constants/auth.constants';
+import { DatabaseModule } from '@app/common';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    // Import DatabaseModule at root level to initialize TypeORM connection
+    DatabaseModule,
     UsersModule,
     PassportModule,
-    JwtModule.register({
-      secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: '60s' },
+    JwtModule.registerAsync({
+      useFactory: (configService: ConfigService) => ({
+        secret: configService.getOrThrow<string>('JWT_SECRET'),
+        signOptions: { expiresIn: AUTH_CONSTANTS.ACCESS_TOKEN_EXPIRES_IN },
+      }),
+      inject: [ConfigService],
     }),
   ],
   controllers: [AuthController],
