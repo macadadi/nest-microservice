@@ -14,7 +14,7 @@ import { createDataSourceFactory } from './data-source';
 
         const entityPaths = [
           join(__dirname, '../../**/*.entity' + entityExt),
-          join(__dirname, '../../../apps/**/*.entity' + entityExt),
+          join(__dirname, '../../../app/**/*.entity' + entityExt),
         ];
         return {
           type: 'postgres',

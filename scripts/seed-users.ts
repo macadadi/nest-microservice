@@ -1,8 +1,8 @@
 import 'reflect-metadata';
 import { DataSource } from 'typeorm';
 import dataSource from '../libs/common/src/database/data-source';
-import { UserEntity } from '../apps/auth/src/users/model/user.entity';
-import { hashUserPassword } from '../apps/auth/src/users/password.helper';
+import { UserEntity } from '../app/src/users/model/user.entity';
+import { PasswordUtil } from '../libs/common/src/utils/password.util';
 
 async function seedUsers() {
   const ds: DataSource = await (dataSource as DataSource).initialize();
@@ -28,7 +28,7 @@ async function seedUsers() {
         continue;
       }
 
-      const hashedPassword = await hashUserPassword(u.password);
+      const hashedPassword = await PasswordUtil.hash(u.password);
       const user = userRepo.create({
         email: u.email,
         password: hashedPassword,
