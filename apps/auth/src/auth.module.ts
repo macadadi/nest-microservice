@@ -9,17 +9,11 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { APP_GUARD } from '@nestjs/core';
 import { TokenRevocationService } from './services/token-revocation.service';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigService } from '@nestjs/config';
 import { AUTH_CONSTANTS } from './constants/auth.constants';
-import { DatabaseModule } from '@app/common';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-    }),
-    // Import DatabaseModule at root level to initialize TypeORM connection
-    DatabaseModule,
     UsersModule,
     PassportModule,
     JwtModule.registerAsync({

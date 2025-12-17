@@ -1,19 +1,13 @@
 import { Module } from '@nestjs/common';
 import { ReservationsService } from './reservations.service';
 import { ReservationsController } from './reservations.controller';
-import { DatabaseModule, LoggerModule } from '@app/common';
-import { ConfigModule } from '@nestjs/config';
+import { DatabaseModule } from '@app/common';
 import { ReservationsRepository } from './reservations.repository';
 import { ReservationEntity } from './model/reservation.entity';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-    }),
-    DatabaseModule,
-    DatabaseModule.forFeature([ReservationEntity]),
-    LoggerModule,
+    DatabaseModule.forFeature([ReservationEntity])
   ],
   controllers: [ReservationsController],
   providers: [ReservationsService, ReservationsRepository],
