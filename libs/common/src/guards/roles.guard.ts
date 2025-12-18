@@ -1,6 +1,28 @@
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { ROLES_KEY } from '../decorators/roles.decorator';
+import { Request } from 'express';
+
+/**
+ * Roles metadata key
+ */
+export const ROLES_KEY = 'roles';
+
+/**
+ * Authenticated user type attached to request
+ */
+interface AuthenticatedUser {
+  id?: string;
+  email?: string;
+  roles?: string[];
+  [key: string]: unknown;
+}
+
+/**
+ * Request with authenticated user
+ */
+interface AuthenticatedRequest extends Request {
+  user?: AuthenticatedUser;
+}
 
 /**
  * Roles guard to check if user has required roles
@@ -20,7 +42,7 @@ export class RolesGuard implements CanActivate {
       return true;
     }
 
-    const request = context.switchToHttp().getRequest();
+    const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
     const user = request.user;
 
     if (!user) {
@@ -29,12 +51,12 @@ export class RolesGuard implements CanActivate {
 
     // If user has roles property, check them
     // Otherwise, allow access (can be customized based on your user model)
-    if (user.roles && Array.isArray(user.roles)) {
-      return requiredRoles.some((role) => user.roles.includes(role));
+    const userRoles = user.roles;
+    if (userRoles && Array.isArray(userRoles)) {
+      return requiredRoles.some((role) => userRoles.includes(role));
     }
 
     // Default: allow if user exists (can be customized)
     return true;
   }
 }
-

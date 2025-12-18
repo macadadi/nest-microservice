@@ -5,7 +5,7 @@ export * from './database/abstract.repository';
 export * from './database/abstract.entity';
 
 // Config
-export * from './config/configuration';
+export * from './config/config.schema';
 
 // Logger
 export * from './logger/logger.module';
@@ -20,10 +20,6 @@ export * from './interceptors/logging.interceptor';
 // Filters
 export * from './filters/http-exception.filter';
 export * from './filters/all-exceptions.filter';
-
-// Decorators
-export * from './decorators/current-user.decorator';
-export * from './decorators/roles.decorator';
 
 // DTOs
 export * from './dto/pagination.dto';

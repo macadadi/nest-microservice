@@ -1,4 +1,5 @@
 import { Logger } from '@nestjs/common';
+import { hasStack } from '../utils/error.util';
 
 /**
  * Base service class with common functionality
@@ -21,8 +22,9 @@ export abstract class BaseService {
   /**
    * Log an error message
    */
-  protected logError(message: string, error?: any): void {
-    this.logger.error(message, error?.stack || error);
+  protected logError(message: string, error?: unknown): void {
+    const errorMessage = hasStack(error) ? error.stack : error;
+    this.logger.error(message, errorMessage);
   }
 
   /**
@@ -39,4 +41,3 @@ export abstract class BaseService {
     this.logger.debug(message, context ? JSON.stringify(context) : '');
   }
 }
-

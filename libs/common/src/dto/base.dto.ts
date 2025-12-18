@@ -14,4 +14,3 @@ export class BaseDto {
   @IsUUID()
   id?: string;
 }
-

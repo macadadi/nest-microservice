@@ -20,6 +20,18 @@ export interface AllExceptionsErrorResponse {
 }
 
 /**
+ * Type guard to check if exception has a status property
+ */
+function hasStatus(exception: unknown): exception is { status: number } {
+  return (
+    typeof exception === 'object' &&
+    exception !== null &&
+    'status' in exception &&
+    typeof (exception as { status: unknown }).status === 'number'
+  );
+}
+
+/**
  * Global exception filter for all unhandled exceptions
  * Catches all exceptions that are not HttpExceptions
  */
@@ -32,15 +44,12 @@ export class AllExceptionsFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
 
-    const status =
-      exception instanceof Error && 'status' in exception
-        ? (exception as any).status
-        : HttpStatus.INTERNAL_SERVER_ERROR;
+    const status = hasStatus(exception)
+      ? exception.status
+      : HttpStatus.INTERNAL_SERVER_ERROR;
 
     const message =
-      exception instanceof Error
-        ? exception.message
-        : 'Internal server error';
+      exception instanceof Error ? exception.message : 'Internal server error';
 
     const errorResponse: AllExceptionsErrorResponse = {
       success: false,
@@ -59,4 +68,3 @@ export class AllExceptionsFilter implements ExceptionFilter {
     response.status(status).json(errorResponse);
   }
 }
-

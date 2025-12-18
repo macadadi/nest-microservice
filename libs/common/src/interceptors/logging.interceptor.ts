@@ -7,6 +7,8 @@ import {
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
+import { Request } from 'express';
+import { hasStack } from '../utils/error.util';
 
 /**
  * Logging interceptor for request/response logging
@@ -16,9 +18,13 @@ import { tap } from 'rxjs/operators';
 export class LoggingInterceptor implements NestInterceptor {
   private readonly logger = new Logger(LoggingInterceptor.name);
 
-  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
-    const request = context.switchToHttp().getRequest();
-    const { method, url, body, query, params } = request;
+  intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
+    const request = context.switchToHttp().getRequest<Request>();
+    const method = request.method;
+    const url = request.url;
+    const body: unknown = request.body;
+    const query: unknown = request.query;
+    const params: unknown = request.params;
     const now = Date.now();
 
     this.logger.log(
@@ -33,11 +39,14 @@ export class LoggingInterceptor implements NestInterceptor {
             `Outgoing Response: ${method} ${url} - ${responseTime}ms`,
           );
         },
-        error: (error) => {
+        error: (error: unknown) => {
           const responseTime = Date.now() - now;
+          const errorMessage =
+            error instanceof Error ? error.message : String(error);
+          const errorStack = hasStack(error) ? error.stack : undefined;
           this.logger.error(
-            `Request Error: ${method} ${url} - ${responseTime}ms - ${error.message}`,
-            error.stack,
+            `Request Error: ${method} ${url} - ${responseTime}ms - ${errorMessage}`,
+            errorStack,
           );
         },
       }),

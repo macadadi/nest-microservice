@@ -3,7 +3,6 @@ import {
   Catch,
   ArgumentsHost,
   HttpException,
-  HttpStatus,
   Logger,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
@@ -18,6 +17,20 @@ export interface HttpErrorResponse {
   error?: string;
   timestamp: string;
   path: string;
+}
+
+/**
+ * Type guard for exception response object
+ */
+interface ExceptionResponseObject {
+  message?: string | string[];
+  error?: string;
+}
+
+function isExceptionResponseObject(
+  response: string | object,
+): response is ExceptionResponseObject {
+  return typeof response === 'object' && response !== null;
 }
 
 /**
@@ -41,11 +54,12 @@ export class HttpExceptionFilter implements ExceptionFilter {
       message:
         typeof exceptionResponse === 'string'
           ? exceptionResponse
-          : (exceptionResponse as any).message || exception.message,
-      error:
-        typeof exceptionResponse === 'object'
-          ? (exceptionResponse as any).error
-          : undefined,
+          : isExceptionResponseObject(exceptionResponse)
+            ? exceptionResponse.message || exception.message
+            : exception.message,
+      error: isExceptionResponseObject(exceptionResponse)
+        ? exceptionResponse.error
+        : undefined,
       timestamp: new Date().toISOString(),
       path: request.url,
     };
@@ -58,4 +72,3 @@ export class HttpExceptionFilter implements ExceptionFilter {
     response.status(status).json(errorResponse);
   }
 }
-

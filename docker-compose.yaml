@@ -1,16 +1,4 @@
 services:
-  # sleepr:
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile
-  #   ports:
-  #     - 3000:3000
-  #   environment:
-  #     - NODE_ENV=production
-  #   volumes:
-  #     - .:/app
-  #   working_dir: /app
-  #   command: npm run start:dev
 
   postgres:
     image: postgres:16-alpine

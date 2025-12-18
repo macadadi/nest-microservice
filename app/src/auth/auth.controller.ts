@@ -21,7 +21,7 @@ import { Public } from './decorators/public.decorator';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { LogoutDto } from './dto/logout.dto';
 import { LoginDto } from './dto/login.dto';
-import { BaseController, CurrentUser } from '@app/common';
+import { BaseController } from '@app/common';
 
 @ApiTags('Auth')
 @Controller('auth')

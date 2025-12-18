@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { Logger } from 'nestjs-pino';
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { ConfigService } from '@nestjs/config';
 import {
   TransformInterceptor,
   LoggingInterceptor,
@@ -12,6 +13,7 @@ import {
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const configService = app.get(ConfigService);
 
   // Global validation pipe with enhanced options
   app.useGlobalPipes(
@@ -50,7 +52,7 @@ async function bootstrap() {
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, documentFactory);
 
-  const port = process.env.PORT ?? 3000;
+  const port = configService.getOrThrow<number>('PORT');
   await app.listen(port);
 
   const logger = app.get(Logger);
