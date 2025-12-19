@@ -11,11 +11,13 @@ import { APP_GUARD } from '@nestjs/core';
 import { TokenRevocationService } from './services/token-revocation.service';
 import { ConfigService } from '@nestjs/config';
 import { AUTH_CONSTANTS } from './constants/auth.constants';
+import { NotificationModule } from '../notification/notification.module';
 
 @Module({
   imports: [
     UsersModule,
     PassportModule,
+    NotificationModule,
     JwtModule.registerAsync({
       useFactory: (configService: ConfigService) => ({
         secret: configService.getOrThrow<string>('JWT_SECRET'),

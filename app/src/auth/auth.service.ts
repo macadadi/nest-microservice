@@ -10,6 +10,7 @@ import { PasswordUtil, BaseService } from '@app/common';
 import { TokenRevocationService } from './services/token-revocation.service';
 import { JwtPayload } from './types/jwt-payload.interface';
 import { AUTH_CONSTANTS } from './constants/auth.constants';
+import { NotificationService } from '../notification/notification.service';
 
 export interface LoginResponse {
   access_token: string;
@@ -26,6 +27,7 @@ export class AuthService extends BaseService {
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly tokenRevocationService: TokenRevocationService,
+    private readonly notificationService: NotificationService,
   ) {
     super(AuthService.name);
   }
@@ -77,10 +79,34 @@ export class AuthService extends BaseService {
 
     this.logInfo(`User logged in successfully: ${user.email}`);
 
+    // Send login notification asynchronously (fire-and-forget)
+    // Don't block the response or fail login if notification fails
+    this.sendLoginNotification(user.email).catch((error) => {
+      this.logError(
+        `Failed to send login notification email for user: ${user.email}`,
+        error,
+      );
+    });
+
     return {
       access_token: accessToken,
       refresh_token: refreshToken,
     };
+  }
+
+  /**
+   * Sends a login notification email to the user.
+   * This is called asynchronously and errors are handled gracefully.
+   */
+  private async sendLoginNotification(email: string): Promise<void> {
+    await this.notificationService.sendNotification(
+      `Welcome back, ${email}!<br><br>You have successfully logged into your Sleepr account. If this wasn't you, please contact support immediately.`,
+      {
+        to: email,
+        subject: 'Login successful - Sleepr',
+        title: 'Welcome Back!',
+      },
+    );
   }
 
   async refresh(refreshToken: string): Promise<RefreshTokenResponse> {

@@ -7,12 +7,12 @@ import {
 } from '@app/common';
 import { AuthModule } from './auth/auth.module';
 import { ReservationsModule } from './reservations/reservations.module';
+import { NotificationModule } from './notification/notification.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       validationSchema: configValidationSchema,
       validationOptions: {
         allowUnknown: true,
@@ -23,6 +23,7 @@ import { ReservationsModule } from './reservations/reservations.module';
     LoggerModule,
     AuthModule,
     ReservationsModule,
+    NotificationModule,
   ],
 })
 export class AppModule {}

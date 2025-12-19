@@ -36,6 +36,7 @@ export class AuthController extends BaseController {
   @Public()
   @UseGuards(LocalAuthGuard)
   @Post('login')
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'User login' })
   @ApiBody({ type: LoginDto })
   @ApiResponse({ status: 200, description: 'Login successful' })
@@ -43,7 +44,6 @@ export class AuthController extends BaseController {
   async login(
     @Request() req: Request & { user: Pick<UserEntity, 'email' | 'id'> },
   ): Promise<LoginResponse> {
-    this.logInfo('User login attempt', { email: req.user.email });
     return this.authService.login(req.user);
   }
 

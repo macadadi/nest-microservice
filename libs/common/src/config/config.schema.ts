@@ -21,4 +21,9 @@ export const configValidationSchema = Joi.object({
 
   // JWT
   JWT_SECRET: Joi.string().required(),
+
+  // Mail
+  MAIL_HOST: Joi.string().default('localhost'),
+  MAIL_PORT: Joi.number().default(1025),
+  MAIL_FROM: Joi.string().default('noreply@sleepr.com'),
 });

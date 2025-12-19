@@ -15,31 +15,26 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
 
-  // Global validation pipe with enhanced options
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: true, // Strip properties that don't have decorators
-      forbidNonWhitelisted: true, // Throw error if non-whitelisted properties are present
-      transform: true, // Automatically transform payloads to DTO instances
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
       transformOptions: {
-        enableImplicitConversion: true, // Enable implicit type conversion
+        enableImplicitConversion: true,
       },
     }),
   );
 
-  // Global logger
   app.useLogger(app.get(Logger));
 
-  // Global interceptors
   app.useGlobalInterceptors(
     new TransformInterceptor(),
     new LoggingInterceptor(),
   );
 
-  // Global exception filters (order matters - more specific first)
   app.useGlobalFilters(new AllExceptionsFilter(), new HttpExceptionFilter());
 
-  // Swagger configuration
   const config = new DocumentBuilder()
     .setTitle('Sleepr API')
     .setDescription('The Sleepr Monolith API description')
