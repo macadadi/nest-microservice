@@ -1,7 +1,45 @@
 
 # Setup
-setup: install up migrate
-	@echo "✅ Setup complete! Run 'make dev' to start the development server."
+setup: setup-env install up migrate
+	@echo "✅ Setup complete! Starting development server..."
+	@echo ""
+	@$(MAKE) dev
+
+setup-env:
+	@if [ ! -f .env ]; then \
+		echo "📝 Creating .env file with development defaults..."; \
+		echo "# Application" > .env; \
+		echo "NODE_ENV=development" >> .env; \
+		echo "PORT=3000" >> .env; \
+		echo "" >> .env; \
+		echo "# Database" >> .env; \
+		echo "POSTGRES_HOST=localhost" >> .env; \
+		echo "POSTGRES_PORT=5432" >> .env; \
+		echo "POSTGRES_USER=admin" >> .env; \
+		echo "POSTGRES_PASSWORD=admin" >> .env; \
+		echo "POSTGRES_DB=nest-microservice" >> .env; \
+		echo "POSTGRES_SYNCHRONIZE=false" >> .env; \
+		echo "POSTGRES_LOGGING=false" >> .env; \
+		echo "POSTGRES_MIGRATIONS_RUN=true" >> .env; \
+		echo "POSTGRES_RETRY_ATTEMPTS=10" >> .env; \
+		echo "POSTGRES_RETRY_DELAY=3000" >> .env; \
+		echo "" >> .env; \
+		echo "# JWT" >> .env; \
+		echo "JWT_SECRET=dev-secret-key-change-in-production-$$(openssl rand -hex 32)" >> .env; \
+		echo "" >> .env; \
+		echo "# Mail (for notifications)" >> .env; \
+		echo "MAIL_HOST=localhost" >> .env; \
+		echo "MAIL_PORT=1025" >> .env; \
+		echo "MAIL_FROM=noreply@nest-microservice.com" >> .env; \
+		echo "" >> .env; \
+		echo "# Redis" >> .env; \
+		echo "REDIS_HOST=localhost" >> .env; \
+		echo "REDIS_PORT=6379" >> .env; \
+		echo "REDIS_DB=0" >> .env; \
+		echo "✅ .env file created successfully!"; \
+	else \
+		echo "ℹ️  .env file already exists. Skipping creation."; \
+	fi
 
 install:
 	pnpm install
