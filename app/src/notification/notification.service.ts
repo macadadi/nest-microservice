@@ -1,30 +1,15 @@
 import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
 import { BaseService } from '@app/common';
-import * as nodemailer from 'nodemailer';
-import type { SentMessageInfo } from 'nodemailer/lib/smtp-transport';
-import { generateEmailTemplate } from './templates/email.template';
+import { EmailJobData } from './processors/email.processor';
 
 @Injectable()
 export class NotificationService extends BaseService {
-  private transporter: nodemailer.Transporter;
-
-  constructor(private readonly configService: ConfigService) {
+  constructor(
+    @InjectQueue('email') private readonly emailQueue: Queue<EmailJobData>,
+  ) {
     super(NotificationService.name);
-    this.initializeTransporter();
-  }
-
-  private initializeTransporter(): void {
-    const mailHost = this.configService.getOrThrow<string>('MAIL_HOST');
-    const mailPort = this.configService.getOrThrow<number>('MAIL_PORT');
-
-    this.transporter = nodemailer.createTransport({
-      host: mailHost,
-      port: mailPort,
-      secure: false, // MailHog doesn't use TLS
-      ignoreTLS: true, // Ignore TLS for MailHog
-      // No auth property - MailHog doesn't require authentication
-    });
   }
 
   async sendNotification(
@@ -36,33 +21,39 @@ export class NotificationService extends BaseService {
       title?: string;
     },
   ): Promise<void> {
-    const mailFrom = this.configService.getOrThrow<string>('MAIL_FROM');
-    const to = options.to;
-    const subject = options.subject;
-    const html = generateEmailTemplate({
-      content: notification,
+    const jobData: EmailJobData = {
+      to: options.to,
+      subject: options.subject,
+      notification,
       title: options.title,
-    });
+    };
 
     try {
-      const info = (await this.transporter.sendMail({
-        from: mailFrom,
-        to,
-        subject,
-        html,
-        text: notification, // Plain text fallback
-      })) as SentMessageInfo;
+      const job = await this.emailQueue.add('send-email', jobData, {
+        attempts: 3,
+        backoff: {
+          type: 'exponential',
+          delay: 2000,
+        },
+        removeOnComplete: {
+          age: 3600, // Keep completed jobs for 1 hour
+          count: 1000, // Keep max 1000 completed jobs
+        },
+        removeOnFail: {
+          age: 86400, // Keep failed jobs for 24 hours
+        },
+      });
 
-      this.logInfo('Email sent successfully', {
-        messageId: info.messageId || 'unknown',
-        to,
-        subject,
+      this.logInfo('Email job added to Redis queue', {
+        jobId: job.id,
+        to: options.to,
+        subject: options.subject,
       });
     } catch (error: unknown) {
-      this.logError('Failed to send email', error);
-      this.logInfo('Email send failure context', {
-        to,
-        subject,
+      this.logError('Failed to add email job to Redis queue', error);
+      this.logInfo('Email queue failure context', {
+        to: options.to,
+        subject: options.subject,
       });
       throw error;
     }

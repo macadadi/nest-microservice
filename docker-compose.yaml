@@ -18,17 +18,32 @@ services:
       retries: 5
       start_period: 10s
 
-  mailhog:
-    image: mailhog/mailhog:latest
-    container_name: sleepr-mailhog
+  # mailhog:
+  #   image: mailhog/mailhog:latest
+  #   container_name: sleepr-mailhog
+  #   ports:
+  #     - "1025:1025"  # SMTP server
+  #     - "8025:8025"  # Web UI
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "nc -z localhost 1025 || exit 1"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: sleepr-redis
     ports:
-      - "1025:1025"  # SMTP server
-      - "8025:8025"  # Web UI
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
     healthcheck:
-      test: ["CMD-SHELL", "nc -z localhost 1025 || exit 1"]
+      test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
 
 volumes:
   postgres-data:
+  redis-data:

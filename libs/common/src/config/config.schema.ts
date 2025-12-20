@@ -26,4 +26,9 @@ export const configValidationSchema = Joi.object({
   MAIL_HOST: Joi.string().default('localhost'),
   MAIL_PORT: Joi.number().default(1025),
   MAIL_FROM: Joi.string().default('noreply@sleepr.com'),
+
+  // Redis
+  REDIS_HOST: Joi.string().default('localhost'),
+  REDIS_PORT: Joi.number().default(6379),
+  REDIS_DB: Joi.number().default(0),
 });
