@@ -84,7 +84,7 @@ nest-microservice/
 
 ## ⚙️ Environment Variables
 
-Create a `.env` file in the root directory with the following variables:
+The `make setup` command will automatically create a `.env` file with development defaults. If you need to create it manually, use the following variables:
 
 ```env
 # Application
@@ -131,10 +131,13 @@ cd nest-microservice
 make setup
 ```
 
-This will:
-1. Install all dependencies
-2. Start Docker services (PostgreSQL & Redis)
-3. Run database migrations
+This will automatically:
+1. Create a `.env` file with development defaults (if it doesn't exist)
+2. Install all dependencies
+3. Start Docker services (PostgreSQL & Redis)
+4. Wait for PostgreSQL to be ready
+5. Run database migrations
+6. Start the development server
 
 Then start the development server:
 
@@ -453,11 +456,21 @@ lsof -i :3000  # or :5432, :6379
    ```
 
 2. Check database credentials in `.env` match `docker-compose.yaml`
+   - Database name should be `nest-microservice` in both files
+   - If you have an existing container with the old database name, restart it:
+     ```bash
+     make restart
+     ```
 
 3. Verify PostgreSQL is healthy:
    ```bash
-   docker-compose exec postgres pg_isready -U admin
+   docker-compose exec postgres pg_isready -U admin -d nest-microservice
    ```
+
+4. If the database doesn't exist error occurs:
+   - The database is created automatically when the container starts
+   - Ensure `POSTGRES_DB=nest-microservice` in both `.env` and `docker-compose.yaml`
+   - Restart the containers: `make restart`
 
 ### Migration Errors
 

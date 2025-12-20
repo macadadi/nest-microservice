@@ -1,6 +1,6 @@
 
 # Setup
-setup: setup-env install up migrate
+setup: setup-env install up wait-db migrate
 	@echo "✅ Setup complete! Starting development server..."
 	@echo ""
 	@$(MAKE) dev
@@ -47,6 +47,23 @@ install:
 # Docker commands
 up:
 	docker-compose up -d
+
+wait-db:
+	@echo "⏳ Waiting for PostgreSQL to be ready..."
+	@timeout=260; \
+	while [ $$timeout -gt 0 ]; do \
+		if docker-compose exec -T postgres pg_isready -U admin -d nest-microservice > /dev/null 2>&1; then \
+			echo "✅ PostgreSQL is ready!"; \
+			break; \
+		fi; \
+		echo "   Waiting for PostgreSQL... ($$timeout seconds remaining)"; \
+		sleep 2; \
+		timeout=$$((timeout - 2)); \
+	done; \
+	if [ $$timeout -le 0 ]; then \
+		echo "❌ PostgreSQL failed to start within 260 seconds"; \
+		exit 1; \
+	fi
 
 down:
 	docker-compose down
