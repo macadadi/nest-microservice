@@ -35,6 +35,18 @@ export class UserRepository extends AbstractRepository<UserEntity> {
   }
 
   /**
+   * Count users without password field
+   * Used for pagination metadata
+   */
+  async countWithoutPassword(
+    filterQuery: Parameters<Repository<UserEntity>['count']>[0],
+  ): Promise<number> {
+    return this.repository.count({
+      ...filterQuery,
+    });
+  }
+
+  /**
    * Find user by email
    * Includes password for authentication purposes
    */

@@ -6,12 +6,17 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { ReservationsService } from './reservations.service';
 import { CreateReservationDto } from './dto/create-reservation.dto';
 import { UpdateReservationDto } from './dto/update-reservation.dto';
-import { BaseController } from '@app/common';
+import {
+  BaseController,
+  PaginationDto,
+  PaginatedResponse,
+} from '@app/common';
 
 @ApiTags('Reservations')
 @Controller('reservations')
@@ -30,10 +35,14 @@ export class ReservationsController extends BaseController {
 
   @Get()
   @ApiOperation({ summary: 'Get all reservations' })
-  @ApiResponse({ status: 200, description: 'Reservations retrieved successfully' })
-  findAll() {
-    this.logInfo('Finding all reservations');
-    return this.reservationsService.findAll();
+  @ApiResponse({
+    status: 200,
+    description: 'Reservations retrieved successfully',
+    type: PaginatedResponse,
+  })
+  findAll(@Query() pagination: PaginationDto) {
+    this.logInfo('Finding all reservations', { pagination });
+    return this.reservationsService.findAll(pagination);
   }
 
   @Get(':id')

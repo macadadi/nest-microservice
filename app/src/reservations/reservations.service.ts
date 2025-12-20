@@ -3,7 +3,11 @@ import { CreateReservationDto } from './dto/create-reservation.dto';
 import { UpdateReservationDto } from './dto/update-reservation.dto';
 import { ReservationsRepository } from './reservations.repository';
 import { ReservationEntity } from './model/reservation.entity';
-import { BaseService } from '@app/common';
+import {
+  BaseService,
+  PaginationDto,
+  PaginatedResponse,
+} from '@app/common';
 
 @Injectable()
 export class ReservationsService extends BaseService {
@@ -25,9 +29,18 @@ export class ReservationsService extends BaseService {
     return reservation;
   }
 
-  findAll(): Promise<ReservationEntity[]> {
-    this.logInfo('Fetching all reservations');
-    return this.reservationsRepository.find({});
+  async findAll(
+    pagination: PaginationDto,
+  ): Promise<PaginatedResponse<ReservationEntity>> {
+    this.logInfo('Fetching all reservations', { pagination });
+    const [reservations, total] = await Promise.all([
+      this.reservationsRepository.find({
+        skip: pagination.skip,
+        take: pagination.take,
+      }),
+      this.reservationsRepository.count({}),
+    ]);
+    return new PaginatedResponse(reservations, total, pagination);
   }
 
   findOne(id: string): Promise<ReservationEntity> {

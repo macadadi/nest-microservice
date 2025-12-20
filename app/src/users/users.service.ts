@@ -2,7 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { UserRepository } from './user.repository';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserEntity } from './model/user.entity';
-import { PasswordUtil, BaseService } from '@app/common';
+import {
+  PasswordUtil,
+  BaseService,
+  PaginationDto,
+  PaginatedResponse,
+} from '@app/common';
 
 @Injectable()
 export class UsersService extends BaseService {
@@ -31,8 +36,17 @@ export class UsersService extends BaseService {
     return this.userRepository.findByEmail(email);
   }
 
-  async getUsers(): Promise<Omit<UserEntity, 'password'>[]> {
-    this.logInfo('Fetching all users');
-    return this.userRepository.findWithoutPassword({});
+  async getUsers(
+    pagination: PaginationDto,
+  ): Promise<PaginatedResponse<Omit<UserEntity, 'password'>>> {
+    this.logInfo('Fetching all users', { pagination });
+    const [users, total] = await Promise.all([
+      this.userRepository.findWithoutPassword({
+        skip: pagination.skip,
+        take: pagination.take,
+      }),
+      this.userRepository.countWithoutPassword({}),
+    ]);
+    return new PaginatedResponse(users, total, pagination);
   }
 }

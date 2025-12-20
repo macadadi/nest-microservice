@@ -7,6 +7,7 @@ import {
   Body,
   HttpCode,
   HttpStatus,
+  Query,
 } from '@nestjs/common';
 import { ApiBody, ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import {
@@ -21,7 +22,7 @@ import { Public } from './decorators/public.decorator';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { LogoutDto } from './dto/logout.dto';
 import { LoginDto } from './dto/login.dto';
-import { BaseController } from '@app/common';
+import { BaseController, PaginationDto, PaginatedResponse } from '@app/common';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -75,9 +76,13 @@ export class AuthController extends BaseController {
 
   @Get('users')
   @ApiOperation({ summary: 'Get all users (for testing)' })
-  @ApiResponse({ status: 200, description: 'Users retrieved successfully' })
-  async users() {
-    this.logInfo('Fetching users via auth endpoint');
-    return this.usersService.getUsers();
+  @ApiResponse({
+    status: 200,
+    description: 'Users retrieved successfully',
+    type: PaginatedResponse,
+  })
+  async users(@Query() pagination: PaginationDto) {
+    this.logInfo('Fetching users via auth endpoint', { pagination });
+    return this.usersService.getUsers(pagination);
   }
 }
