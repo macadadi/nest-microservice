@@ -58,7 +58,7 @@ Before you begin, ensure you have the following installed:
 ## 📁 Project Structure
 
 ```
-sleepr/
+nest-microservice/
 ├── app/                    # Main application code
 │   └── src/
 │       ├── auth/          # Authentication module
@@ -96,7 +96,7 @@ POSTGRES_HOST=localhost
 POSTGRES_PORT=5432
 POSTGRES_USER=admin
 POSTGRES_PASSWORD=admin
-POSTGRES_DB=sleepr
+POSTGRES_DB=nest-microservice
 POSTGRES_SYNCHRONIZE=false
 POSTGRES_LOGGING=false
 POSTGRES_MIGRATIONS_RUN=true
@@ -109,7 +109,7 @@ JWT_SECRET=your-super-secret-jwt-key-change-in-production
 # Mail (for notifications)
 MAIL_HOST=localhost
 MAIL_PORT=1025
-MAIL_FROM=noreply@sleepr.com
+MAIL_FROM=noreply@nest-microservice.com
 
 # Redis
 REDIS_HOST=localhost
@@ -127,7 +127,7 @@ Run the complete setup in one command:
 
 ```bash
 git clone <repository-url>
-cd sleepr
+cd nest-microservice
 make setup
 ```
 
@@ -148,7 +148,7 @@ make dev
 
 ```bash
 git clone <repository-url>
-cd sleepr
+cd nest-microservice
 ```
 
 #### 2. Install Dependencies
