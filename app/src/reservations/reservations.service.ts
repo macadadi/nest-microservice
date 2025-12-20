@@ -3,24 +3,20 @@ import { CreateReservationDto } from './dto/create-reservation.dto';
 import { UpdateReservationDto } from './dto/update-reservation.dto';
 import { ReservationsRepository } from './reservations.repository';
 import { ReservationEntity } from './model/reservation.entity';
-import {
-  BaseService,
-  PaginationDto,
-  PaginatedResponse,
-} from '@app/common';
+import { BaseService, PaginationDto, PaginatedResponse } from '@app/common';
 
 @Injectable()
 export class ReservationsService extends BaseService {
-  constructor(
-    private readonly reservationsRepository: ReservationsRepository,
-  ) {
+  constructor(private readonly reservationsRepository: ReservationsRepository) {
     super(ReservationsService.name);
   }
 
   create(
     createReservationDto: CreateReservationDto,
   ): Promise<ReservationEntity> {
-    this.logInfo('Creating reservation', { userId: createReservationDto.userId });
+    this.logInfo('Creating reservation', {
+      userId: createReservationDto.userId,
+    });
     const reservation = this.reservationsRepository.create({
       ...createReservationDto,
       timestamp: Date.now(),
